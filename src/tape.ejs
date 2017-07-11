@@ -1,4 +1,6 @@
 var path = require("path");
+var stream = require("stream");
+var zlib = require("zlib");
 
 /**
  * <%- req.method %> <%- decodeURIComponent(req.path) %>
@@ -17,10 +19,14 @@ module.exports = function (req, res) {
 
   res.setHeader("x-yakbak-tape", path.basename(__filename, ".js"));
 
-<% body.forEach(function (data) { -%>
-  res.write(new Buffer(<%- JSON.stringify(data.toString('base64')) %>, "base64"));
-<% }); -%>
-  res.end();
+  <% if (res.headers['content-encoding'] === 'gzip') { %>
+  var encode = zlib.createGzip();
+  <% } else { %>
+  var encode = new stream.PassThrough;
+  <% } %>
+
+  encode.pipe(res);
+  encode.end(new Buffer(<%- JSON.stringify(body.toString()) %>));
 
   return __filename;
 };
