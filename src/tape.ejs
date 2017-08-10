@@ -26,7 +26,7 @@ module.exports = function (req, res) {
   <% } %>
 
   encode.pipe(res);
-  encode.end(new Buffer(<%- JSON.stringify(body.toString()) %>));
+  encode.end(new Buffer(JSON.stringify(<%- body.toString() %>)));
 
   return __filename;
 };
